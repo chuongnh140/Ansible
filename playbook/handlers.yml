@@ -1,0 +1,30 @@
+- hosts: ansible-client1
+  remote_user: nchuong
+  become: yes
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+      notify:
+      - Restart apache2
+
+    - name: Install Vim
+      apt:
+        name: vim
+        state: present
+      notify:
+      - Restart apache2
+
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+      notify:
+      - Restart apache2
+
+  handlers:
+    - name: Restart apache2
+      service:
+        name: apache2
+        state: restarted

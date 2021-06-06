@@ -1,0 +1,25 @@
+- hosts: ansible-client2
+  remote_user: nchuong
+  become: true
+  vars:
+    packages:
+      - apache2
+      - htop
+      - nano
+  tasks:
+    - name: Install Software
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}" #Su dung tu khoa loop 
+                             #de lay tung phan tu trong list packages khai bao o tren
+    
+    - name: Remove Software
+      apt:
+        name:                #co the su dung cach nay de lay tung phan tu.
+          - apache2
+          - htop
+          - nano
+        state: absent
+#Co the dung 2 cach khac nhau de lay tung phan tu trong list.
+# 2 cach nhung cung 1 ket qua la nhu nhau

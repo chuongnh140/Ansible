@@ -1,0 +1,12 @@
+- hosts: ansible-client2
+  remote_user: nchuong
+  become: yes
+  tasks: 
+  - name: Install Apache
+    apt:
+      name: apache2
+      state: present
+  - name: Stop Service Apache
+    service:
+      name: apache2
+      state: stopped

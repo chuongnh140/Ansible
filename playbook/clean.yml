@@ -1,0 +1,15 @@
+- hosts: ansible-client2
+  remote_user: nchuong
+  become: yes
+  tasks:
+    - name: Remove Apache
+      apt:
+        name: apache2
+        state: absent
+        purge: true
+
+#    - name: Remove nginx
+#      apt:
+#        name: nginx
+#        state: absent
+#        purge: true

@@ -1,0 +1,17 @@
+- hosts: ansible-client2
+  vars: 
+    course:
+      - ansible
+      - teraform
+      - linux
+  tasks:
+  - name: Display first course
+    debug: #debug moudle de display bien ra
+      msg: "{{ course[0] }}"
+  - name: Display second course
+    debug: #debug moudle de display bien ra
+      msg: "{{ course[1] }}"
+  - name: Display third course
+    debug: #debug moudle de display bien ra
+      msg: "{{ course[2] }}"
+      

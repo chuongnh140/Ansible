@@ -1,0 +1,17 @@
+- hosts: ansible-client2
+  remote_user: nchuong
+  become: yes
+  tasks: 
+  - name: Install Apache
+    apt:
+      name: apache2
+      state: present
+ 
+  - name: Edit File HTML
+    shell:
+      cmd: echo "<H1>Hello Chuong Dep Trai</H1>" > /var/www/html/index.html
+
+  - name: Service apache
+    service:
+      name: apache2
+      state: reloaded

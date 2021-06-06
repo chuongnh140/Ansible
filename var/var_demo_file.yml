@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+  - name: Display port
+    debug: #debug moudle de display bien ra
+      msg: "{{ http_port }}"
+  - name: Display name of server
+    debug: #debug moudle de display bien ra
+      msg: "{{ server_name }}"
+  - name: Display status of service
+    debug: #debug moudle de display bien ra
+      msg: "{{ status }}"
+      

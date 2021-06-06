@@ -1,0 +1,7 @@
+- hosts: ansible-client2
+  vars: #khai bao bien su dung, dung module var
+    var1: Test var thoi nha
+  tasks:
+  - name: Display my variables
+    debug: #debug moudle de display bien ra
+      msg: "{{ var1 }}"
