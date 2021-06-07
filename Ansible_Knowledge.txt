@@ -415,3 +415,11 @@ Cau lenh de tai collection
 Variable in Roles
 default thap quyen hon var o thu muc var
 
+
+Dependencies:
+metadata folder in roles
+
+
+Ansible-Hacks
+gather_facts: no
+strategy: free -> chay nhanh nhat co the
