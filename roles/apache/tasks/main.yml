@@ -1,0 +1,16 @@
+---
+# tasks file for apache
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+- name: Install Apache
+  apt: 
+    name: apache2
+    state: present
+- name: Create The HTML File
+  shell: echo "<H1>Hello From The Ansible Challenge ne</H1>" > /var/www/html/index.html
+  args:
+    executable: /bin/bash
+  notify:
+    - Reload Apache

@@ -1,4 +1,4 @@
-- hosts: ansible-client2
+- hosts: ansible2
   remote_user: nchuong
   become: yes
   tasks: 

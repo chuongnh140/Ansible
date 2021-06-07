@@ -1,0 +1,7 @@
+---
+# tasks file for cleaner
+- name: Clean software
+  apt:
+    name: apache2
+    state: absent
+    purge: true

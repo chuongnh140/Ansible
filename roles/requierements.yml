@@ -1,0 +1,6 @@
+roles:
+  - name: geerlingguy.docker    #roles in ansible-galaxy de tai docker
+  - src: https://github.com/companieshouse/ansible-role-apache      #roles tren github 
+    name: apache_from_github                                        #name cua roles do minh tu dat
+collections:
+  - name: geerlingguy.k8s

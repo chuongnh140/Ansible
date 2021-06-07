@@ -1,0 +1,5 @@
+---
+# tasks file for var_demo
+- name: Display my variables
+  debug: #debug moudle de display bien ra
+    msg: "{{ var1 }}"

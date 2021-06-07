@@ -1,0 +1,23 @@
+---
+# tasks file for web
+- name: Remove Apache
+  apt:
+    name: apache2
+    state: absent
+    purge: true
+
+#- name: Update repo
+#  apt:
+#    name: "*"
+#    state: latest
+
+- name: Install Apache
+  apt:
+    name: apache2
+    state: latest
+
+- name: Edit html file
+  shell:
+    cmd: echo "<H1> Hello {{ name }} </H1>" > /var/www/html/index.html
+  notify:
+    - reload apache

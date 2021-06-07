@@ -1,0 +1,8 @@
+- hosts: ansible2
+  remote_user: nchuong
+  become: yes
+  roles:
+    - web
+    - db
+    
+

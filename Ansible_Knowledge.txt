@@ -1,0 +1,417 @@
+1. Tạo file khai báo HOST
+	- Mặc định sẽ nằm trong đường dẫn /etc/ansible/hosts
+	- Sử dụng option -i để set đường dẫn file.
+	> ansible all --list-hosts -i hosts.yml   #all: group all, co the thay the bang group khac
+  	hosts (2):
+    	ansible-client1
+    	ansible-client2
+	file hosts.yml co noi dung sau:
+	all:
+  	  hosts:
+    	    ansible-client1:
+    	    ansible-client2:
+  	  children:
+    	    web:
+      	      hosts:
+                ansible-client1:
+    	    db:
+      	      hosts:
+                ansible-client2:
+	> ansible web --list-hosts -i hosts.yml  #group o day la group web co 1 host đã khai báo
+  	hosts (1):
+    	ansible-client1
+
+2. Lệnh kiểm tra cơ bản tất cả các hosts: PING
+Để kiểm tra xem việc khai báo này đã đúng và bắt đầu tiếp các bài lab tiếp theo hay chưa, hãy sử dụng tùy chọn -m trong lệnh dưới, đây là dấu hiệu nhận biết về việc sẽ sử dụng module có tên là ping (-m là viết tắt của module). Trong bài này sẽ giới thiệu thêm một số moudle khác ngoài module ping này.
+
+Chinh sua file hosts.yml
+all:
+  hosts:
+    ansible-client1:
+      ansible_host: ansible-client1
+      ansible_port: 22
+      ansible_user: nchuong
+      ansible_ssh_private_key_file: /home/nchuong/.ssh/id_rsa
+    ansible-client2:
+      ansible_host: ansible-client2
+      ansible_port: 22
+      ansible_user: nchuong
+      ansible_ssh_private_key_file: /home/nchuong/.ssh/id_rsa
+  children:
+    web:
+      hosts:
+        ansible-client1:  
+    db:
+      hosts:
+        ansible-client2:
+
+
+> ansible all -m ping -i hosts.yml
+ansible-client2 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ansible-client1 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+
+
+Co the su dung ten host de sai module ping
+
+> ansible ansible-client1 -m ping -i hosts.yml
+ansible-client1 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+> ansible web -m ping -i hosts.yml
+ansible-client1 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+> ansible db -m ping -i hosts.yml
+ansible-client2 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+
+
+Module command trong ansible
+Cach su dung nhu sau:
+
+Lưu ý thêm có tùy chọn -a để truyền thêm các đầu vào cho module command. Tùy chọn này cũng được dùng trong các module khác nhé.
+
+
+> ansible all -i hosts.yml -m command -a "ip a"
+ansible-client2 | CHANGED | rc=0 >>
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 1000
+    link/ether 00:0c:29:59:21:86 brd ff:ff:ff:ff:ff:ff
+    inet 100.0.0.30/24 brd 100.0.0.255 scope global noprefixroute ens33
+       valid_lft forever preferred_lft forever
+    inet6 fe80::6753:e234:5d43:69b3/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+ansible-client1 | CHANGED | rc=0 >>
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 1000
+    link/ether 00:0c:29:ad:45:55 brd ff:ff:ff:ff:ff:ff
+    inet 100.0.0.20/24 brd 100.0.0.255 scope global noprefixroute ens33
+       valid_lft forever preferred_lft forever
+    inet6 fe80::532:eb51:2884:c8db/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+
+
+
+3. Ansible Playbook
+Cau truc cau lenh
+#ansible-playbook -i hosts.yml playbook.yml
+-- ansible-playbook
+-- -i file inventory hosts.yml
+-- option cuoi la playbook.yml
+-- -v verbose to see the output when use shell
+
+Cai dat apache cho Ubuntu, su dung module APT
+module apt: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
+
+Cai day apache cho CentOS, su dung YUM
+module yum:
+https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html
+
+
+file playbook.yml
+- hosts: ansible-client1		--ten Hosts can cai, thong tin truy cap trong file host.yml
+  remote_user: nchuong			--user de remote : nchuong
+  become: yes				--su dung sudo de cai dat
+  tasks:   				--xac dinh cac tasks can lam: name cua task1: install apache
+  - name: Install Apache 					      name cua taks2: remove apache
+    apt:
+      name: apache2
+      state: present
+  - name: Remove Apache
+    apt:
+      name: apache2
+      state: absent
+
+3. Handlers
+Tuong tu nhu Tasks, se co nhieu handlers1, handlesrs2
+Thong bao cho tasks o tren la can restart thay vi phai go lai nhieu lan o moi tasks(nam tron moi task nho cua tasks lon noi module notify)
+- hosts: ansible-client1
+  remote_user: nchuong
+  become: yes
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+      notify:
+      - Restart apache2
+
+    - name: Install Vim
+      apt:
+        name: vim
+        state: present
+      notify:
+      - Restart apache2
+
+    - name: Install htop
+      apt:
+        name: htop
+        state: present
+      notify:
+      - Restart apache2
+  
+
+  handlers:
+    - name: Restart apache2
+      service:
+        name: apache2
+        state: restarted
+
+
+
+3. Working with Shell in Ansible
+https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html
+- hosts: ansible-client2
+  remote_user: nchuong
+  become: yes
+  tasks: 
+  - name: Install Apache
+    apt:
+      name: apache2
+      state: present
+ 
+  - name: Edit File HTML
+    shell:
+      cmd: echo "<H1>Hello Chuong Dep Trai</H1>" > /var/www/html/index.html
+
+  - name: Service apache
+    service:
+      name: apache2
+      state: reloaded
+
+
+
+4. Variable in Ansible
+- hosts: ansible-client2
+  vars: #khai bao bien su dung, dung module var
+    var1: First Var neee
+  tasks:
+  - name: Display my variables
+    debug: #debug moudle de display bien ra
+      msg: "{{ var1 }}"
+
+
+use varriable in arrays
+- hosts: ansible-client2
+  vars: 
+    course:
+      - ansible
+      - teraform
+      - linux
+  tasks:
+  - name: Display first course
+    debug: #debug moudle de display bien ra
+      msg: "{{ course[0] }}"
+  - name: Display second course
+    debug: #debug moudle de display bien ra
+      msg: "{{ course[1] }}"
+  - name: Display third course
+    debug: #debug moudle de display bien ra
+      msg: "{{ course[2] }}"
+
+
+
+Khai bao var o mot file khac va cach su dung cmd
+#ansible-playbook -e "@vars.yml" var_demo_file.yml
+-e : "@<tenfile>": dinh dang theo yaml, them @ trong ngoac kep
+
+#cat vars.yml
+http_port: 8080
+server_name: chuongnh.com
+status: Active
+
+#cat var_demo_file.yml
+- hosts: localhost
+  tasks:
+  - name: Display port
+    debug: #debug moudle de display bien ra
+      msg: "{{ http_port }}"
+  - name: Display name of server
+    debug: #debug moudle de display bien ra
+      msg: "{{ server_name }}"
+  - name: Display status of service
+    debug: #debug moudle de display bien ra
+      msg: "{{ status }}"
+
+
+Khai bao file var trong file playbook
+option vars_file
+- hosts: localhost
+  vars_files:
+    - vars.yml  #cung vi tri cua playbook file (nho do dung ten file)
+  tasks:
+  - name: Display port
+    debug: #debug moudle de display bien ra
+      msg: "{{ http_port }}"
+  - name: Display name of server
+    debug: #debug moudle de display bien ra
+      msg: "{{ server_name }}"
+  - name: Display Status Service
+    debug: #debug moudle de display bien
+      msg: "{{ status }}"
+
+      
+
+Co the dung var truc tiep treen commad line
+cat file vars_sort_commnad.yml
+- hosts: localhost
+  tasks:
+  - name: Display port
+    debug: #debug moudle de display bien ra
+      msg: "{{ http_port }}"
+  - name: Display name of server
+    debug: #debug moudle de display bien ra
+      msg: "{{ server_name }}"
+
+command de display var ra la
+#ansible-playbook -e http_port=80 -e server_name=chuongnh.com vars_sort_commd.yml
+
+Su dung bien de khai bao 1 loop va acces tung phan tu trong list bang 2 cach sau:
+- hosts: ansible-client2
+  remote_user: nchuong
+  become: true
+  vars:
+    packages:
+      - apache2
+      - htop
+      - nano
+  tasks:
+    - name: Install Software
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}" #Su dung tu khoa loop 
+                             #de lay tung phan tu trong list packages khai bao o tren
+    
+    - name: Remove Software
+      apt:
+        name:                #co the su dung cach nay de lay tung phan tu.
+          - apache2
+          - htop
+          - nano
+        state: absent
+#Co the dung 2 cach khac nhau de lay tung phan tu trong list.
+# 2 cach nhung cung 1 ket qua la nhu nhau
+
+
+
+
+5. Ansible Roles
+Cach tao role -> tao 1 thu muc -> ansible-galaxy init apache
+#ansible galaxy : mac dinh
+#init: initialized
+#apache: ten role la apache
+create roles for apache:
+#ansible-galaxy init apache
+-- dir of roles 
+    defaults: default variable for the role.
+    files: scripts or config files want to cp over to remote host.
+    handlers: handlers file.
+    meta: stand for metadata, contains information about the role such as offer, platform support and any dependencies.
+    tasks: playbooks
+    templates: khong thuong xuyen su dung
+    tests: testing roles
+    vars: cao quyen hon cai default
+      -- defalt la de mac dinh, con var thi thuong se ghi de lenn neu muon thay doi
+    
+
+Tao playbook dau tien su dung playbook.yml, trong thu muc roles
+gom cac muc sau:
+
+playbook.yml
+- hosts: ansible2
+  remote_user: nchuong
+  become: yes
+  roles:       #rsu dung roles trong playbook
+    - apache   #ten roles da duoc tao
+   
+
+tasks/main.yml
+  ---
+# tasks file for apache
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+- name: Install Apache
+  apt: 
+    name: apache2
+    state: present
+- name: Create The HTML File
+  shell: echo "<H1>Hello From The Ansible Challenge ne</H1>" > /var/www/html/index.html
+  args:
+    executable: /bin/bash
+  notify:
+    - Reload Apache
+
+handlers/main.yml
+---
+# handlers file for apache
+- name: Reload Apache
+  service:
+    name: apache2
+    state: reloaded
+
+
+Cau lenh de chay
+#ansible-playbook -i hosts.yml roles/playbook.yml
+
+
+Ansible-Galaxy
+  Co the tai cac roles co san tren ansible-galaxy
+  tai nhiu roles cung luc thi su dung 1 file dien tat cac thong tin roles trong do
+  - name: geerlingguy.docker    #roles in ansible-galaxy de tai docker
+  - src: https://github.com/companieshouse/ansible-role-apache      #roles tren github 
+    name: apache_from_github                                        #name cua roles do minh tu dat
+  Commad de tai roles:
+  #ansible-galaxy install --roles-path . -r requierements.yml
+                          de roles o dau
+                          -r file chua thong tin roles
+
+Roles VS collections
+collection la tap hop cac roles
+
+Cau lenh de tai collection
+#ansible-galaxy collection install geerlingguy.k8s -p .  
+
+
+Variable in Roles
+default thap quyen hon var o thu muc var
+

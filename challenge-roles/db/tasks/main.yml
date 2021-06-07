@@ -1,0 +1,16 @@
+---
+# tasks file for db
+#- name: Update repo
+#  apt:
+#    name: "*"
+#    state: latest
+
+- name: Install DB
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Start DB
+  service:
+    name: mysql
+    state: started

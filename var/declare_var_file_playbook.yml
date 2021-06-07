@@ -1,0 +1,15 @@
+- hosts: localhost
+  vars_files:
+    - vars.yml  #cung vi tri cua playbook file
+  tasks:
+  - name: Display port
+    debug: #debug moudle de display bien ra
+      msg: "{{ http_port }}"
+  - name: Display name of server
+    debug: #debug moudle de display bien ra
+      msg: "{{ server_name }}"
+  - name: Display Status Service
+    debug: #debug moudle de display bien
+      msg: "{{ status }}"
+
+      
